@@ -11,17 +11,55 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-def sorting_algorithm( unsorted_array ):
+def sorting_algorithm( ):
     
-   n = len( unsorted_array )
-   sorted_array = np.copy( unsorted_array)
 
    """
    Insert your code here (the bubble or the insertion sorting)
 
    """ 
 
-   return sorted_array
+   
+   result_insertion = {}
+   for i in range(1000, 10000, 1000):
+       random_array = np.random.randint( 1, 100, size=i)
+       _, exec_time = insertion_sort(random_array)
+       result_insertion[i] = exec_time
+    
+   plt.plot(result_insertion.keys(), result_insertion.values())
+   plt.show()
+
+
+   
+
+
+
+
+
+
+
+
+
+
+def insertion_sort(unsorted_array):
+    n = len( unsorted_array )
+    sorted_array = np.copy( unsorted_array)
+    for i in range(1, n):
+        j = i - 1
+        while j >= 0 and sorted_array[j + 1] < sorted_array[j]:
+            tmp = sorted_array[j + 1]
+            sorted_array[j + 1] = sorted_array[j]
+            sorted_array[j] = tmp
+            j -= 1
+    
+    cpu_execution_time = time.process_time()
+    print(cpu_execution_time)
+    return sorted_array
+
+
+  
+
+
 
 
 def linear_search( array, x ):
@@ -32,6 +70,11 @@ def linear_search( array, x ):
     Insert your code here
 
     """
+
+    for i in range(len(array) - 1):
+        if array[i] == x:
+            index = i
+
     
     # return the position of x in the array,
     # return -1 if not present
@@ -46,6 +89,19 @@ def binary_search( array, x ):
     Insert your code here
 
     """ 
+    l, r = 0, len(array-1)
+
+    while l != r:
+        mid = l + r // 2
+        if x < array[mid]:
+            r = mid - 1
+        else:
+            l = mid
+
+    if array[l] == x:
+        return l
+    else:
+        return -1 
     
     # return the position of x in the array,
     # return -1 if not present
