@@ -3,7 +3,7 @@
 """
 
 @authors: Insert all your names here
-
+Alan Bruno Fijal, Maria Fiamenghi, Marc Farras, Patricia Cerda
 """
 
 import random, time
@@ -69,6 +69,7 @@ def binary_search(array, x):
             r = mid - 1 #point the right index to the left of cur middle
         else:
             l = mid + 1 #else point the left index to the right of cur middle
+    
     
     
     # return the position of x in the array,

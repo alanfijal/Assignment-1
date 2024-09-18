@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 @authors: Insert all your names here
-
+Alan Bruno Fijal, Maria Fiamenghi, Marc Farras, Patricia Cerda
 """
 
 import random, time
