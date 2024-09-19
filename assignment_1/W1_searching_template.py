@@ -9,7 +9,7 @@ Alan Bruno Fijal, Maria Fiamenghi, Marc Farras, Patricia Cerda
 import random, time
 import matplotlib.pyplot as plt
 import numpy as np
-import W1_sorting_template
+import W2_sorting_template
 
 
 def sorting_algorithm( unsorted_array ):
@@ -21,7 +21,7 @@ def sorting_algorithm( unsorted_array ):
    Insert your code here (the bubble or the insertion sorting)
 
    """ 
-   sorted_array = W1_sorting_template.insertionsort(sorted_array) #perform sorting, using the imported insertionsort from the sorting template
+   sorted_array = W2_sorting_template.insertionsort(sorted_array) #perform sorting, using the imported insertionsort from the sorting template
    return sorted_array #return sorted array
 
 
@@ -33,14 +33,11 @@ def linear_search( array, x ):
     Insert your code here
 
     """
-    sorted_array = sorting_algorithm(array) #sort the array
-    for i in range(len(sorted_array) - 1): #traverse through the array
-        if sorted_array[i] == x: #if the value at the current index is equal to the searched value
+
+    for i in range(len(array) - 1): #traverse through the array
+        if array[i] == x: #if the value at the current index is equal to the searched value
             index = i #set the index to the cur value of the pointer
             break #break the loop
-    
-    
-
     
     # return the position of x in the array,
     # return -1 if not present
@@ -70,44 +67,85 @@ def binary_search(array, x):
         else:
             l = mid + 1 #else point the left index to the right of cur middle
     
+    return index
+
+
+def binary_search_recursive(array, x):
     
+    index = -1 
+    
+    """
+    Insert your code here
+
+    """ 
+    sorted_array = sorted(array) #We sort the array outside of the recursive call, so that runtime won't be artificially inflated by it 
+
+    def recursion(arr, x, l, r): #recursive function expects: an array, value we are looking for, left most index (left pointer), right most index (right pointer)
+        if l > r: 
+            return -1  #base case, if the left index is bigger than the right index, we break the recursion stating x was not found 
+        
+        mid = (l + r) // 2 #compute the mid index 
+
+        if arr[mid] == x: #if the x we are looking for is equal to the item at the mid position, we return the middle index 
+            return mid 
+        elif x < arr[mid]: #if the x we are looking for is smaller than the item at the mid position, we call the recursion with the same parameters, except the right index that is swichted to the middle index - 1
+            return recursion(arr, x, l, mid -1)
+        else: #if the x we are looking for is greater than the item at the mid position, we call the recursion with the same parameters, except the left index that is swichted to the middle index + 1
+            return recursion(arr, x, mid + 1, r)
     
     # return the position of x in the array,
     # return -1 if not present
+    index = recursion(sorted_array, x, 0, len(sorted_array) - 1) #call the function with the correct parameters 
     return index 
 
 class Graph:
+    def __init__(self, *functions): #user can either pass the functions when instantiating the class, or when calling the function
+        self.functions = functions
+        
     @staticmethod #Static used to imporve the function runtime as there won't be an attempt to instantiate an object and does not access any instance-object data, hence static
     def _exec_time(function, *args, **kwargs): #helper function, that takes the sorting algorithm and computes its execution time
-        start_time = time.process_time() #Record the start time
+        start_time = time.perf_counter() #Record the start time, used perf_counter for more precise measurment 
         result = function(*args, **kwargs) #Call the function with the positional and keywords parameters in the function
-        exec_time = time.process_time() - start_time #Compute the runtime
+        exec_time = time.perf_counter() - start_time #Compute the runtime, used perf_counter for more precise measurment 
         return (result, exec_time) #Return the result of the function and its runtime as a tuple
     
-    @staticmethod #Static used to imporve the function runtime as there won't be an attempt to instantiate an object and does not access any instance-object data, hence static
-    def graph():
-        results_linear = {} #dict to store results of the runs
-        results_binary = {} #dict to store results of the runs
-        for i in range(1000, 10000, 500): #Loop from 1000 to 10000, with the step of 500
-            random_array = np.random.randint(1, 100000, size=i) #for each iteration create a random array
-            random_number = np.random.randint(1, 100000) #for each iteration create a number that will be searched in the array
+    def graph(self, *functions): 
+            functions_to_graph = functions if functions else self.functions #if user did not pass any functions when callin the functions, we use the functions passed through instantiation of the class
+
+            if not functions_to_graph:
+                raise ValueError("Error, no functions were provided.") #Error raised when functions_to_graph are empty 
             
-            time_binary = Graph._exec_time(binary_search, random_array, random_number)#compute exec time for binary search
-            time_linear = Graph._exec_time(linear_search, random_array, random_number)#compute exec time for linear search
-            results_linear[i] = time_linear[1] #save the excec time
-            results_binary[i] = time_binary[1] #save the excec time
+            results_holder = {f.__name__: {} for f in functions_to_graph} #Dictionary to hold the results, the name of the function: empty dictionary 
+
+            for i in range(1000, 10000, 500): #Loop from 1000 to 10000, with the step of 500
+                random_array = np.random.randint(1, 100000, size=i) #for each iteration create a random array
+                random_number = np.random.randint(1, 100000) #for each iteration create a number that will be searched in the array
+
+                for f in functions_to_graph: #traverse through the functions to be graphed
+                    _, exec_time = self._exec_time(f, random_array, random_number) #compute the runtime using the class function 
+                    results_holder[f.__name__][i] = exec_time #store the results in the dictionary corresponding to the name of the function 
+
+            
 
 
-        plt.figure(figsize=(10, 6)) #initialize an empty graph with the width of 10 and height of 6
-        plt.plot(list(results_linear.keys()), list(results_linear.values()), label="Linear Search", marker='o') #Plot the curve for the Linear search results, taking keys of the dictionary as the y axis, and values of the dictionary as a x axis, add label and a marker
-        plt.plot(list(results_binary.keys()), list(results_binary.values()), label="Binary Search", marker='x') #Plot the curve for the Binary search results, taking keys of the dictionary as the y axis, and values of the dictionary as a x axis, add label and a marker
+            plt.figure(figsize=(10, 6)) #initialize an empty graph with the width of 10 and height of 6
+            markers = ['x', 'o', '*', 'k', 'p'] #markers avaiable 
+            for index, f in enumerate(functions_to_graph): #Grab index and the function while traversing through functions to graph 
+                sizes = list(results_holder[f.__name__].keys()) #Get the keys of the results dict, that correspond to the sizes of the arrays 
+                times = list(results_holder[f.__name__].values()) #Get the values of the results dict, that correspond to runtimes of the operations  
+                plt.plot(sizes, times, label=f.__name__, marker=markers[index]) #plot the graph, using our collected data, label with the current function and marker equivalent to the marker from the list at the current index 
 
-        plt.xlabel("Array size") #add x axis label
-        plt.ylabel("CPU execution time")  #add y axis label
-        plt.title("Execution time vs array size") #add graph title
-        plt.legend() #add the legend of the graph
+            
 
-        plt.show() #show the graph
+            plt.xlabel("Array size") #add x axis label
+            plt.ylabel("CPU execution time")  #add y axis label
+            plt.title("Execution time vs array size") #add graph title
+            plt.legend() #add the legend of the graph
+
+            plt.show() #show the graph
+
+
+
 
 
 
@@ -133,11 +171,12 @@ else:
     print("Element", x, "is not present")
 
 # Execute the binary search returning the position of x or -1 if not present
-idx_bs = binary_search( sorted_array, x )
+idx_bs = binary_search_recursive( sorted_array, x )
 
 if idx_bs != -1:
     print("Item", x, "is present at index ", idx_bs)
 else:
     print("Element", x, "is not present")
+
 
 

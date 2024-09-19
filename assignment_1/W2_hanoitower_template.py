@@ -18,13 +18,13 @@ def hanoitower( n, source, destination, auxiliary ):
     Insert your code here
 
     """ 
-    if n == 1:
+    if n == 1: #Base case, when there is only 1 disk, move it straight to the destination  
         print("Disk {} moves from {} to tower {}".format(n, source, destination))
         return 
 
-    hanoitower(n-1, source, destination, auxiliary)
-    print("Disk {} moves from {} to tower {}".format(n, source, destination))
-    hanoitower(n-1, auxiliary, source, destination)
+    hanoitower(n-1, source, auxiliary, destination) #Move n-1 disks from the source to the auxiliary tower using the destination as auxiliary.
+    print("Disk {} moves from {} to tower {}".format(n, source, destination)) #Inform the user about the move 
+    hanoitower(n-1, auxiliary, destination, source) #Move the n-1 disks from the auxiliary tower to the destination using the source as auxiliary.
     
     
 
